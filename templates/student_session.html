@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Session — ProctorVision</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/session.css') }}">
+</head>
+<body>
+
+    <!-- ══════════ HEADER ══════════ -->
+    <header class="exam-header">
+        <div class="exam-brand">
+            <div class="brand-mark">PV</div>
+            <div>
+                <div class="brand-name">ProctorVision</div>
+                <div class="brand-sub">Exam in progress</div>
+            </div>
+        </div>
+
+        <div class="exam-info">
+            <div class="info-item">
+                <span class="info-label">Student</span>
+                <span class="info-value">{{ session.get('name', 'Student') }}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Time</span>
+                <span class="info-value" id="sessionTime">00:00</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Question</span>
+                <span class="info-value"><span id="currentQ">1</span> / <span id="totalQ">5</span></span>
+            </div>
+        </div>
+
+        <a href="/api/logout" class="exit-btn">End Exam</a>
+    </header>
+
+    <!-- ══════════ MAIN GRID ══════════ -->
+    <main class="exam-main">
+
+        <!-- ─────── LEFT: Camera + Metrics ─────── -->
+        <aside class="camera-column">
+            <div class="camera-wrapper">
+                <div class="camera-placeholder" id="cameraPlaceholder">
+                    <img src="{{ url_for('static', filename='images/camera-idle.gif') }}" alt="Loading" />
+                </div>
+
+                <video id="video" autoplay playsinline muted></video>
+                <canvas id="canvas" style="display:none;"></canvas>
+
+                <div class="status-badge" id="statusBadge">Starting...</div>
+                <div class="rec-indicator">
+                    <span class="dot"></span>
+                    <span>REC</span>
+                </div>
+            </div>
+
+            <div class="metrics-compact">
+                <div class="metric-mini">
+                    <span class="metric-mini-label">Yaw</span>
+                    <span class="metric-mini-value" id="mYaw">0°</span>
+                </div>
+                <div class="metric-mini">
+                    <span class="metric-mini-label">Pitch</span>
+                    <span class="metric-mini-value" id="mPitch">0°</span>
+                </div>
+                <div class="metric-mini">
+                    <span class="metric-mini-label">Roll</span>
+                    <span class="metric-mini-value" id="mRoll">0°</span>
+                </div>
+                <div class="metric-mini">
+                    <span class="metric-mini-label">Faces</span>
+                    <span class="metric-mini-value" id="mFaces">1</span>
+                </div>
+            </div>
+
+            <div class="camera-note">
+                Stay in frame · Do not leave
+            </div>
+        </aside>
+
+        <!-- ─────── CENTER: Exam Questions ─────── -->
+        <section class="question-area">
+            <div class="question-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 20%;"></div>
+                </div>
+            </div>
+
+            <div class="question-card">
+                <div class="question-header">
+                    <span class="q-num" id="qNumber">Question 1</span>
+                    <span class="q-marks">1 mark</span>
+                </div>
+
+                <h2 class="question-text" id="questionText">
+                    What is the output of: print(2 + 3 * 4)?
+                </h2>
+
+                <div class="options" id="optionsContainer">
+                    <label class="option">
+                        <input type="radio" name="answer" value="A">
+                        <span class="option-letter">A</span>
+                        <span class="option-text">14</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="answer" value="B">
+                        <span class="option-letter">B</span>
+                        <span class="option-text">20</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="answer" value="C">
+                        <span class="option-letter">C</span>
+                        <span class="option-text">24</span>
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="answer" value="D">
+                        <span class="option-letter">D</span>
+                        <span class="option-text">32</span>
+                    </label>
+                </div>
+
+                <div class="question-actions">
+                    <button class="btn-nav" id="prevBtn" disabled>← Previous</button>
+                    <button class="btn-nav btn-nav-primary" id="nextBtn">Next →</button>
+                    <button class="btn-nav btn-nav-submit hidden" id="submitBtn">Submit Exam</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ─────── RIGHT: Alerts + Stats ─────── -->
+        <aside class="alerts-column">
+            <div class="alerts-header">
+                <div class="label">Live Feed</div>
+                <h3>Alerts</h3>
+            </div>
+
+            <div class="stats-compact">
+                <div class="stat-mini">
+                    <span class="stat-mini-label">Session</span>
+                    <span class="stat-mini-value" id="sessionTime2">00:00</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-label">Violations</span>
+                    <span class="stat-mini-value gold" id="violationCount">0</span>
+                </div>
+            </div>
+
+            <ul class="event-list" id="eventList">
+                <li class="empty">No alerts</li>
+            </ul>
+        </aside>
+
+    </main>
+
+    <!-- Alert banner (top) -->
+    <div class="violation-banner" id="violationBanner">
+        <span class="v-icon">⚠</span>
+        <span id="violationText">Violation detected</span>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/alert_sound.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/face_capture.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/head_movement.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/yolo_detect.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/student_session.js') }}"></script>
+</body>
+</html>

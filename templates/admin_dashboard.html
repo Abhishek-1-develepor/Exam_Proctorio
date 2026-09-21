@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — ProctorVision</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-mark">PV</div>
+            <div>
+                <div class="brand-name">ProctorVision</div>
+                <div class="brand-sub">Admin Panel</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item active">Overview</a>
+            <a href="#violations" class="nav-item">Violations</a>
+            <a href="#students" class="nav-item">Students</a>
+            <a href="#logs" class="nav-item">Login Logs</a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/api/logout" class="logout-btn">Logout</a>
+        </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <main class="main">
+
+        <!-- Top bar -->
+        <header class="topbar">
+            <div>
+                <div class="label">Administration</div>
+                <h1>Monitoring <em>overview</em></h1>
+            </div>
+            <div class="live-indicator">
+                <span class="dot"></span>
+                <span>Live</span>
+            </div>
+        </header>
+
+        <!-- Stats row -->
+        <section class="stats-row">
+            <div class="stat">
+                <div class="stat-label">Total Students</div>
+                <div class="stat-value" id="statStudents">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Successful Logins</div>
+                <div class="stat-value" id="statLogins">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Total Violations</div>
+                <div class="stat-value gold" id="statViolations">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Last 24 Hours</div>
+                <div class="stat-value danger" id="stat24h">0</div>
+            </div>
+        </section>
+
+        <!-- Two columns -->
+        <section class="content-grid">
+
+            <!-- Violations -->
+            <div class="panel" id="violations">
+                <div class="panel-header">
+                    <div>
+                        <div class="label">Detection Log</div>
+                        <h2>Recent <em>violations</em></h2>
+                    </div>
+                    <div class="panel-count" id="violationCount">0</div>
+                </div>
+
+                <ul class="violation-list" id="violationList">
+                    <li class="empty">No violations recorded</li>
+                </ul>
+            </div>
+
+            <!-- Login logs -->
+            <div class="panel" id="logs">
+                <div class="panel-header">
+                    <div>
+                        <div class="label">Access Log</div>
+                        <h2>Login <em>activity</em></h2>
+                    </div>
+                </div>
+
+                <ul class="login-list" id="loginList">
+                    <li class="empty">No activity</li>
+                </ul>
+            </div>
+
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/alert_sound.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/admin_dashboard.js') }}"></script>
+</body>
+</html>

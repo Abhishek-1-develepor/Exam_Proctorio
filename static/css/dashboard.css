@@ -1,0 +1,416 @@
+/* ProctorVision — Admin Dashboard */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 100vh;
+}
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+}
+
+.sidebar-brand .brand-mark {
+    width: 40px;
+    height: 40px;
+    background: var(--gold);
+    color: #000;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 500;
+    display: grid;
+    place-items: center;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.brand-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+.brand-sub {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.nav-item {
+    padding: 12px 14px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+}
+
+.nav-item:hover {
+    color: var(--text);
+    background: var(--surface-2);
+}
+
+.nav-item.active {
+    color: var(--text);
+    border-left-color: var(--gold);
+    background: var(--surface-2);
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+
+.logout-btn {
+    display: block;
+    padding: 12px 14px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+}
+
+.logout-btn:hover { color: var(--danger); }
+
+/* ============ MAIN ============ */
+.main {
+    padding: 40px 48px;
+    overflow-x: hidden;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+}
+
+.topbar h1 {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    margin-top: 8px;
+}
+
+.topbar h1 em {
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 300;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--success);
+}
+
+.live-indicator .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* ============ STATS ============ */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    margin-bottom: 32px;
+}
+
+.stat {
+    padding: 24px;
+    border-right: 1px solid var(--border);
+}
+
+.stat:last-child { border-right: none; }
+
+.stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 2.6rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+}
+
+.stat-value.gold { color: var(--gold); }
+.stat-value.danger { color: var(--danger); }
+
+/* ============ PANELS ============ */
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.panel-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    margin-top: 6px;
+}
+
+.panel-header h2 em {
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 300;
+}
+
+.panel-count {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 500;
+    color: var(--gold);
+    line-height: 1;
+}
+
+/* ============ LISTS ============ */
+.violation-list,
+.login-list {
+    list-style: none;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.violation-list li,
+.login-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.violation-list li:last-child,
+.login-list li:last-child { border-bottom: none; }
+
+.violation-list .empty,
+.login-list .empty {
+    justify-content: center;
+    color: var(--muted-2);
+    font-style: italic;
+    padding: 40px 0;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+}
+
+.v-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.v-type {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--danger);
+    text-transform: uppercase;
+}
+
+.v-student {
+    font-size: 0.85rem;
+    color: var(--text-2);
+}
+
+.v-time {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.v-conf {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--gold);
+}
+
+.l-student {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text);
+}
+
+.l-status {
+    padding: 3px 8px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+}
+
+.l-status.success {
+    color: var(--success);
+    border-color: rgba(74,222,128,0.4);
+}
+
+.l-status.fail {
+    color: var(--danger);
+    border-color: rgba(248,113,113,0.4);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1100px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(2) { border-right: none; }
+    .stat:nth-child(1),
+    .stat:nth-child(2) { border-bottom: 1px solid var(--border); }
+    .content-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    body { grid-template-columns: 1fr; }
+    .sidebar { position: relative; height: auto; }
+    .main { padding: 24px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); }
+    .stat:last-child { border-bottom: none; }
+}
+
+/* ============================================================
+   LOGIN LIST WITH IMAGES
+   ============================================================ */
+
+.login-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.login-thumb-wrap {
+    position: relative;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.login-thumb {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border: 1px solid var(--border-strong);
+    background: var(--surface-2);
+    display: block;
+}
+
+.login-thumb.placeholder {
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--gold);
+    background: var(--surface-2);
+}
+
+.login-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.login-info .l-student {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--text);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+}
+
+.login-info .v-time {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+}

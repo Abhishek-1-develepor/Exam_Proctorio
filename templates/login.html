@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — ProctorVision</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    
+</head>
+<body>
+    <div class="login-container">
+
+        <!-- LEFT: Branding -->
+        <div class="brand-side">
+            <div>
+                <div class="brand-mark">PV</div>
+                <h1>Proctor<em>Vision</em></h1>
+                <p class="tagline">
+                    AI-powered exam proctoring with face verification,
+                    real-time detection, and intelligent violation alerts.
+                </p>
+
+                <ul class="features">
+                    <li>Face verification login</li>
+                    <li>YOLO object detection</li>
+                    <li>Head-movement tracking</li>
+                    <li>Real-time sound alerts</li>
+                </ul>
+            </div>
+
+            <div class="brand-footer">
+                v1.0 · MIT License
+            </div>
+        </div>
+
+        <!-- RIGHT: Form -->
+        <div class="form-side">
+            <div class="form-side-inner">
+
+                <div class="tabs">
+                    <button class="tab active" data-tab="login">Student</button>
+                    <button class="tab" data-tab="admin">Admin</button>
+                </div>
+
+                <!-- Student Login -->
+                <div class="tab-content active" id="login-tab">
+                    <div class="form-header">
+                        <div class="label">Face Authentication</div>
+                        <h2>Sign in with your <em>face</em></h2>
+                        <p>Position your face in the frame and click verify.</p>
+                    </div>
+
+                   <div class="camera-wrapper">
+    <!-- GIF placeholder — shown when camera is off -->
+    <div class="camera-placeholder" id="cameraPlaceholder">
+        <img src="{{ url_for('static', filename='images/camera-idle.gif') }}" alt="Camera idle" />
+        <p class="placeholder-text">Camera is off</p>
+        <p class="placeholder-sub">Click "Start Camera" to begin</p>
+    </div>
+
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas" style="display:none;"></canvas>
+    <div class="face-guide" id="faceGuide">
+        <div class="br"></div>
+    </div>
+    <div class="status-badge" id="statusBadge">Camera off</div>
+</div>
+
+                    <div cla<ss="controls">
+                        <button id="startCam" class="btn btn-outline">Start Camera</button>
+                        <button id="verifyBtn" class="btn btn-gold" disabled>Verify & Login</button>
+                    </div>
+
+                    <div class="msg" id="message"></div>
+
+                    <p class="link-row">
+                        New student? <a href="{{ url_for('pages.register') }}">Register your face</a>
+                    </p>
+                </div>
+
+                <!-- Admin Login -->
+                <div class="tab-content" id="admin-tab">
+                    <div class="form-header">
+                        <div class="label">Administrator</div>
+                        <h2>Admin <em>access</em></h2>
+                        <p>Enter your admin password to continue.</p>
+                    </div>
+
+                    <div class="field">
+                        <label>Password</label>
+                        <input type="password" id="adminPassword" placeholder="••••••••">
+                    </div>
+
+                    <button id="adminLoginBtn" class="btn btn-gold btn-arrow" style="width:100%;">Login as Admin</button>
+
+                    <div class="msg" id="adminMessage" style="margin-top:16px;"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+<script src="{{ url_for('static', filename='js/alert_sound.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/face_capture.js') }}"></script>
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — ProctorVision</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <div class="login-container">
+
+        <div class="brand-side">
+            <div>
+                <div class="brand-mark">PV</div>
+                <h1>Face <em>Registration</em></h1>
+                <p class="tagline">
+                    One-time setup. Your face will be securely stored
+                    as a 128-dimensional mathematical encoding — not an image.
+                </p>
+
+                <ul class="features">
+                    <li>Single photo capture</li>
+                    <li>Encrypted face encoding</li>
+                    <li>Used only for exam login</li>
+                    <li>Delete anytime on request</li>
+                </ul>
+            </div>
+
+            <div class="brand-footer">
+                Step 1 of 1 · Setup
+            </div>
+        </div>
+
+        <div class="form-side">
+            <div class="form-side-inner">
+
+                <div class="form-header">
+                    <div class="label">New Student</div>
+                    <h2>Register your <em>face</em></h2>
+                    <p>Fill in your details, then capture a clear photo.</p>
+                </div>
+
+                <div class="field">
+                    <label>Student ID</label>
+                    <input type="text" id="studentId" placeholder="STU001" autocomplete="off">
+                </div>
+
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" id="fullName" placeholder="Your full name" autocomplete="off">
+                </div>
+
+                <div class="field">
+                    <label>Email (optional)</label>
+                    <input type="email" id="email" placeholder="you@example.com" autocomplete="off">
+                </div>
+
+                <div class="camera-wrapper" style="margin-top:20px;">
+                    <video id="video" autoplay playsinline muted></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                    <div class="face-guide" id="faceGuide">
+                        <div class="br"></div>
+                    </div>
+                    <div class="status-badge" id="statusBadge">Camera off</div>
+                </div>
+
+                <div class="controls">
+                    <button id="startCam" class="btn btn-outline">Start Camera</button>
+                    <button id="registerBtn" class="btn btn-gold" disabled>Register Face</button>
+                </div>
+
+                <div class="msg" id="message"></div>
+
+                <p class="link-row">
+                    Already registered? <a href="{{ url_for('pages.login') }}">Sign in</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+   <script src="{{ url_for('static', filename='js/alert_sound.js') }}"></script>
+<script type="module" src="{{ url_for('static', filename='js/face_capture.js') }}"></script>
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+</body>
+</html>

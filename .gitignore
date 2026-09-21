@@ -1,0 +1,29 @@
+@"
+# Python
+__pycache__/
+*.py[cod]
+venv/
+*.so
+
+# Models
+models/*.onnx
+models/*.pt
+
+# Database
+database/*.db
+
+# Logs
+logs/*.log
+
+# Uploads
+uploads/snapshots/*
+!uploads/snapshots/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+"@ | Out-File -FilePath .gitignore -Encoding utf8

@@ -1,0 +1,3 @@
+New-Item logs\.gitkeep -ItemType File
+New-Item uploads\snapshots\.gitkeep -ItemType File
+New-Item models\.gitkeep -ItemType File
