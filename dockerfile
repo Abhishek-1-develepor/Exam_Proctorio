@@ -1,6 +1,5 @@
 FROM python:3.10-slim
 
-# Install system dependencies for dlib + opencv
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -17,24 +16,18 @@ RUN apt-get update && apt-get install -y \
     wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
-# Copy requirements first (for caching)
 COPY requirements.txt .
-
-# Install Python packages
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire project
 COPY . .
 
-# Create necessary folders
 RUN mkdir -p database logs uploads/snapshots
 
-# Expose HF Spaces default port
-EXPOSE 7860
+# Render sets $PORT automatically — use it, fallback to 7860
+ENV PORT=7860
+EXPOSE $PORT
 
-# Run with gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:7860", "--timeout", "120", "--workers", "1", "--threads", "4"]
+CMD ["sh", "-c", "gunicorn app:app --bind 0.0.0.0:${PORT} --timeout 120 --workers 1 --threads 4"]
