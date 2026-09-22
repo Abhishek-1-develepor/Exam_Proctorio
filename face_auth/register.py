@@ -13,7 +13,7 @@ def register_student(student_id, name, email, encoding):
         student_id: unique ID (e.g. "STU001")
         name: full name
         email: optional email
-        encoding: numpy array of 128 floats
+        encoding: numpy array (MediaPipe landmark vector)
 
     Returns:
         (True, "message") on success
@@ -30,8 +30,12 @@ def register_student(student_id, name, email, encoding):
         conn.execute(
             "INSERT INTO students (student_id, name, email, face_encoding) "
             "VALUES (?, ?, ?, ?)",
-            (student_id.strip(), name.strip(), email.strip() if email else None,
-             pickle.dumps(encoding))
+            (
+                student_id.strip(),
+                name.strip(),
+                email.strip() if email else None,
+                pickle.dumps(encoding),
+            ),
         )
         conn.commit()
         return True, f"Student {name} registered successfully"
@@ -61,7 +65,8 @@ def list_students():
     conn = get_connection()
     try:
         rows = conn.execute(
-            "SELECT id, student_id, name, email, created_at FROM students ORDER BY created_at DESC"
+            "SELECT id, student_id, name, email, created_at "
+            "FROM students ORDER BY created_at DESC"
         ).fetchall()
         return [dict(r) for r in rows]
     finally:

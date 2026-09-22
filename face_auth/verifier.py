@@ -1,18 +1,29 @@
-"""face_auth/verifier.py — Face verification against DB."""
+"""face_auth/verifier.py — MediaPipe-based face verification."""
 
 import pickle
-import face_recognition
+import numpy as np
 from database.db import get_connection
 from config import Config
 
 
-def verify_face(encoding, tolerance=None):
+def cosine_similarity(a, b):
+    """Compute cosine similarity between two vectors."""
+    dot = np.dot(a, b)
+    norm_a = np.linalg.norm(a)
+    norm_b = np.linalg.norm(b)
+    if norm_a == 0 or norm_b == 0:
+        return 0.0
+    return float(dot / (norm_a * norm_b))
+
+
+def verify_face(encoding, threshold=None):
     """
-    Compare an encoding against all registered students.
+    Compare encoding against all registered students using
+    cosine similarity on MediaPipe FaceMesh vectors.
 
     Args:
-        encoding: numpy array of 128 floats
-        tolerance: float (default from Config.FACE_MATCH_TOLERANCE)
+        encoding: numpy array (normalized landmark vector)
+        threshold: similarity threshold (default from Config)
 
     Returns:
         (student_dict, None) on match
@@ -21,8 +32,8 @@ def verify_face(encoding, tolerance=None):
     if encoding is None:
         return None, "No encoding provided"
 
-    if tolerance is None:
-        tolerance = Config.FACE_MATCH_TOLERANCE
+    if threshold is None:
+        threshold = Config.FACE_MATCH_TOLERANCE
 
     conn = get_connection()
     try:
@@ -35,46 +46,25 @@ def verify_face(encoding, tolerance=None):
     if not rows:
         return None, "No students registered yet"
 
-    known_encodings = []
-    known_students = []
+    best_match = None
+    best_score = -1.0
+
     for row in rows:
         try:
-            enc = pickle.loads(row["face_encoding"])
-            known_encodings.append(enc)
-            known_students.append({
-                "student_id": row["student_id"],
-                "name": row["name"],
-            })
+            known = pickle.loads(row["face_encoding"])
+            score = cosine_similarity(known, encoding)
+
+            if score > best_score:
+                best_score = score
+                best_match = row
         except Exception:
             continue
 
-    if not known_encodings:
-        return None, "No valid encodings in database"
+    if best_match and best_score >= threshold:
+        return {
+            "student_id": best_match["student_id"],
+            "name": best_match["name"],
+            "similarity": round(best_score, 4),
+        }, None
 
-    # Compare against all
-    matches = face_recognition.compare_faces(
-        known_encodings, encoding, tolerance=tolerance
-    )
-
-    # Get face distance for better match selection
-    distances = face_recognition.face_distance(known_encodings, encoding)
-
-    if not any(matches):
-        return None, "Face not recognized"
-
-    # Pick best match (minimum distance)
-    best_idx = int(np_argmin(distances))
-    if not matches[best_idx]:
-        return None, "Face not recognized"
-
-    return {
-        "student_id": known_students[best_idx]["student_id"],
-        "name": known_students[best_idx]["name"],
-        "distance": round(float(distances[best_idx]), 4),
-    }, None
-
-
-def np_argmin(arr):
-    """Small helper to avoid extra numpy import at top."""
-    import numpy as np
-    return np.argmin(arr)
+    return None, f"Face not recognized (best similarity: {best_score:.3f})"

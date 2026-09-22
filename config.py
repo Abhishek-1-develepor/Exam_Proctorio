@@ -25,7 +25,10 @@ class Config:
     VIOLATION_CLASSES = ["cell phone", "book", "laptop"]
 
     # ---------- Face ----------
-    FACE_MATCH_TOLERANCE = 0.5
+    # Cosine similarity threshold for MediaPipe face matching
+# Range: 0.85 (strict) — 0.95 (lenient)
+# 0.90 is a good starting point
+    FACE_MATCH_TOLERANCE = 0.90
 
     # ---------- Uploads ----------
     UPLOAD_DIR = str(BASE_DIR / "uploads" / "snapshots")

@@ -4,7 +4,7 @@ import os
 import uuid
 import cv2
 from datetime import datetime
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, redirect, url_for
 from face_auth.encoder import extract_encoding
 from face_auth.verifier import verify_face
 from face_auth.register import register_student
@@ -166,8 +166,8 @@ def admin_login():
 # ============================================================
 @bp.route("/api/logout")
 def logout():
-    """Clear session and return success."""
+    """Clear session and redirect to login page."""
     user = session.get("name", "unknown")
     session.clear()
     log.info(f"Logout: {user}")
-    return jsonify({"success": True})
+    return redirect(url_for("pages.login"))
