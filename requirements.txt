@@ -4,8 +4,4 @@ onnxruntime==1.19.2
 opencv-python-headless==4.10.0.84
 numpy==1.26.4
 Pillow==10.4.0
-mediapipe==0.10.14cd "C:\Users\hp\Documents\proctorvision"
-
-git add packages.txt requirements.txt
-git commit -m "Add libgl1 to packages.txt for Streamlit Cloud"
-git push origin main
+mediapipe==0.10.14
