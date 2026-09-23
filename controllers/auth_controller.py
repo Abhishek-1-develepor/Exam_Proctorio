@@ -152,7 +152,6 @@ def admin_login():
 # ============================================================
 @bp.route("/api/logout")
 def logout():
-    user = session.get("name", "unknown")
     session.clear()
-    log.info(f"Logout: {user}")
+    # log.info hatao (ya sirf error log karo)
     return redirect(url_for("pages.login"))

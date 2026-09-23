@@ -1,17 +1,17 @@
 """utils/logger.py — ProctorVision logger setup."""
 
 import logging
-from pathlib import Path
+import os
 from config import Config
 
 
 def setup_logger(name="proctorvision"):
-    Path(Config.LOG_FILE).parent.mkdir(parents=True, exist_ok=True)
-
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    
+    # ⚠️ Render pe INFO level skip karo
+    log_level = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+    logger.setLevel(getattr(logging, log_level, logging.WARNING))
 
-    # Avoid duplicate handlers
     if logger.handlers:
         return logger
 
@@ -20,12 +20,13 @@ def setup_logger(name="proctorvision"):
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
-    # File handler
-    fh = logging.FileHandler(Config.LOG_FILE, encoding="utf-8")
-    fh.setFormatter(fmt)
-    logger.addHandler(fh)
+    # ⚠️ File handler sirf WARNING+ ke liye (slow file writes band)
+    # Comment out for Render
+    # fh = logging.FileHandler(Config.LOG_FILE, encoding="utf-8")
+    # fh.setFormatter(fmt)
+    # logger.addHandler(fh)
 
-    # Console handler
+    # Console only (fast, Render pe safe)
     ch = logging.StreamHandler()
     ch.setFormatter(fmt)
     logger.addHandler(ch)

@@ -50,39 +50,22 @@ def student_session():
 # ═══════════════════════════════════════════════════════════════
 @bp.route("/api/exam/submit", methods=["POST"])
 def submit_exam():
-    """Submit exam — with duplicate protection."""
     try:
         data = request.get_json()
-        
-        # Get student ID from session
         student_id = session.get("student_id") or request.remote_addr
         
-        # Check if already submitted
         if student_id in exam_submissions:
-            return jsonify({
-                "error": "Exam already submitted",
-                "submitted_at": exam_submissions[student_id]["submitted_at"]
-            }), 409
+            return jsonify({"error": "Already submitted"}), 409
         
-        # Save submission
-        submission = {
+        exam_submissions[student_id] = {
             "student_id": student_id,
             "score": data.get("score", 0),
             "total": data.get("total", 0),
-            "answers": data.get("answers", {}),
             "submitted_at": datetime.utcnow().isoformat()
         }
-        exam_submissions[student_id] = submission
         
-        print(f"[EXAM] Submitted by {student_id}: {submission['score']}/{submission['total']}")
-        
-        return jsonify({
-            "status": "submitted",
-            "submission": submission
-        }), 200
-        
+        return jsonify({"status": "submitted"}), 200   # ✅ Fast
     except Exception as e:
-        print(f"[EXAM] Submit error: {e}")
         return jsonify({"error": str(e)}), 500
 
 

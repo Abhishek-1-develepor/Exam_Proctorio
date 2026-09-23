@@ -309,27 +309,28 @@
                 const data = await response.json();
 
                 // ⚠️ Handle 409 Already Submitted
-                if (response.status === 409) {
-                    examAlreadySubmitted = true;
-                    localStorage.setItem('exam_submitted_at', Date.now().toString());
-                    alert('⚠️ Exam already submitted!\n\nYou cannot submit again.');
-                    setTimeout(() => window.location.href = "/api/logout", 1500);
-                    return;
-                }
+                // ⚠️ Fast submit — no alert, no setTimeout
+if (response.status === 409) {
+    examAlreadySubmitted = true;
+    localStorage.setItem('exam_submitted_at', Date.now().toString());
+    window.location.href = "/api/logout";  // Immediate
+    return;
+}
 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Submit failed');
-                }
+if (!response.ok) {
+    throw new Error(data.error || 'Submit failed');
+}
 
-                // ⚠️ Success
-                localStorage.setItem('exam_submitted_at', Date.now().toString());
-                examAlreadySubmitted = true;
+// Success — immediate redirect
+localStorage.setItem('exam_submitted_at', Date.now().toString());
+examAlreadySubmitted = true;
 
-                alert(`✅ Exam submitted!\n\nScore: ${score}/${total}\n\nThank you.`);
+// Optional: show brief banner (no alert)
+if (bannerText) bannerText.textContent = `Exam submitted! Score: ${score}/${total}`;
+if (banner) banner.classList.add("show");
 
-                setTimeout(() => {
-                    window.location.href = "/api/logout";
-                }, 1500);
+// Immediate redirect
+window.location.href = "/api/logout";
 
             } catch (err) {
                 console.error('[Submit] Failed:', err);
