@@ -1,4 +1,4 @@
-"""face_auth/verifier.py — MediaPipe-based face verification."""
+"""face_auth/verifier.py — Cosine similarity based face verification."""
 
 import pickle
 import numpy as np
@@ -6,23 +6,21 @@ from database.db import get_connection
 from config import Config
 
 
-def cosine_similarity(a, b):
-    """Compute cosine similarity between two vectors."""
-    dot = np.dot(a, b)
-    norm_a = np.linalg.norm(a)
-    norm_b = np.linalg.norm(b)
-    if norm_a == 0 or norm_b == 0:
+def _cosine_similarity(a, b):
+    a = np.asarray(a, dtype=np.float32)
+    b = np.asarray(b, dtype=np.float32)
+    denom = float(np.linalg.norm(a) * np.linalg.norm(b))
+    if denom == 0:
         return 0.0
-    return float(dot / (norm_a * norm_b))
+    return float(np.dot(a, b) / denom)
 
 
 def verify_face(encoding, threshold=None):
     """
-    Compare encoding against all registered students using
-    cosine similarity on MediaPipe FaceMesh vectors.
+    Compare encoding against all registered students using cosine similarity.
 
     Args:
-        encoding: numpy array (normalized landmark vector)
+        encoding: numpy array (normalized vector)
         threshold: similarity threshold (default from Config)
 
     Returns:
@@ -46,13 +44,13 @@ def verify_face(encoding, threshold=None):
     if not rows:
         return None, "No students registered yet"
 
-    best_match = None
     best_score = -1.0
+    best_match = None
 
     for row in rows:
         try:
             known = pickle.loads(row["face_encoding"])
-            score = cosine_similarity(known, encoding)
+            score = _cosine_similarity(known, encoding)
 
             if score > best_score:
                 best_score = score
@@ -67,4 +65,4 @@ def verify_face(encoding, threshold=None):
             "similarity": round(best_score, 4),
         }, None
 
-    return None, f"Face not recognized (best similarity: {best_score:.3f})"
+    return None, f"Face not recognized (score: {best_score:.3f})"

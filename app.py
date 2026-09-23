@@ -28,6 +28,7 @@ def create_app():
         return jsonify({
             "status": "ok",
             "app": "ProctorVision",
+            
             "version": "1.0.0"
         })
     @app.route("/uploads/<filename>")

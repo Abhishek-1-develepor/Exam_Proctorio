@@ -76,25 +76,57 @@
         });
 
         // ---------- Verify & Login ----------
+                // ---------- Verify & Login ----------
         verifyBtn.addEventListener("click", async () => {
-            if (!window.pvCamera.isReady()) return;
+            if (!window.pvCamera.isReady()) {
+                showMessage("Camera not ready", "error");
+                return;
+            }
 
-            const frame = window.pvCamera.capture();
-            if (!frame) {
-                showMessage("Could not capture frame", "error");
+            if (!window.pvFace) {
+                showMessage("Face module still loading — try again", "error");
                 return;
             }
 
             verifyBtn.disabled = true;
-            verifyBtn.textContent = "Verifying...";
-            showMessage("Comparing face...", "info");
+            verifyBtn.textContent = "Extracting face...";
+            showMessage("Processing...", "info");
 
             try {
+                // Extract encoding in the browser
+                const result = await window.pvFace.extractEncoding(video);
+
+                console.log("[Login] Extract result:", {
+                    success: result.success,
+                    error: result.error,
+                    type: typeof result.encoding,
+                    isArray: Array.isArray(result.encoding),
+                    length: result.encoding?.length,
+                });
+
+                if (!result.success) {
+                    window.pvSound?.play("error");
+                    showMessage(result.error || "Face extraction failed", "error");
+                    verifyBtn.disabled = false;
+                    verifyBtn.textContent = "Verify & Login";
+                    return;
+                }
+
+                verifyBtn.textContent = "Verifying...";
+
+                // Capture image (for login log)
+                const imageB64 = window.pvCamera.capture();
+
+                // Send encoding + image to server
                 const res = await fetch("/api/login", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ image: frame }),
+                    body: JSON.stringify({
+                        encoding: result.encoding,
+                        image: imageB64,
+                    }),
                 });
+
                 const data = await res.json();
 
                 if (data.success) {
