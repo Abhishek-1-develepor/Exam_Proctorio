@@ -1,6 +1,6 @@
 /**
  * student_session.js — Student exam session orchestrator.
- * WITH duplicate submission protection.
+ * NO RESTRICTIONS — student can retake exam.
  */
 
 (function () {
@@ -11,12 +11,10 @@
         {
             question: "What is the output of: print(2 + 3 * 4)?",
             options: ["14", "20", "24", "32"],
-            answer: "A",
         },
         {
             question: "Which data structure follows LIFO order?",
             options: ["Queue", "Stack", "Array", "Linked List"],
-            answer: "B",
         },
         {
             question: "What does HTML stand for?",
@@ -26,17 +24,14 @@
                 "Hyper Transfer Markup Language",
                 "Home Tool Markup Language",
             ],
-            answer: "A",
         },
         {
             question: "Which of these is NOT a Python data type?",
             options: ["List", "Tuple", "Array", "Dictionary"],
-            answer: "C",
         },
         {
             question: "Time complexity of binary search?",
             options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
-            answer: "B",
         },
     ];
 
@@ -56,7 +51,6 @@
     const banner = document.getElementById("violationBanner");
     const bannerText = document.getElementById("violationText");
 
-    // Exam question elements
     const qNumberEl = document.getElementById("qNumber");
     const questionTextEl = document.getElementById("questionText");
     const optionsContainer = document.getElementById("optionsContainer");
@@ -71,40 +65,6 @@
     let sessionStart = Date.now();
     let bannerTimeout = null;
     let isSubmitting = false;
-    let examAlreadySubmitted = false;
-
-    // ════════════════════════════════════════════════════════════
-    // DUPLICATE SUBMISSION PROTECTION
-    // ════════════════════════════════════════════════════════════
-
-    // Check on page load
-    async function checkSubmissionStatus() {
-        // 1. Check localStorage
-        const localSubmit = localStorage.getItem('exam_submitted_at');
-        if (localSubmit) {
-            const elapsed = Date.now() - parseInt(localSubmit);
-            // If submitted less than 24 hours ago, block
-            if (elapsed < 24 * 60 * 60 * 1000) {
-                console.log('[Submit] Blocked by localStorage');
-                return false;
-            }
-        }
-
-        // 2. Check backend
-        try {
-            const response = await fetch('/api/exam/status');
-            const data = await response.json();
-            if (data.submitted) {
-                console.log('[Submit] Blocked by backend');
-                localStorage.setItem('exam_submitted_at', Date.now().toString());
-                return false;
-            }
-        } catch (err) {
-            console.warn('[Submit] Status check failed:', err);
-        }
-
-        return true;
-    }
 
     // ════════════════════════════════════════════════════════════
     // SESSION TIMER
@@ -245,98 +205,34 @@
     }
 
     // ════════════════════════════════════════════════════════════
-    // SUBMIT HANDLER — WITH DUPLICATE PROTECTION
+    // SUBMIT HANDLER — NO RESTRICTIONS
     // ════════════════════════════════════════════════════════════
     if (submitBtn) {
         submitBtn.addEventListener("click", async () => {
-            // ⚠️ Guard 1: Already submitting
-            if (isSubmitting) {
-                console.log('[Submit] Already submitting, ignoring...');
-                return;
-            }
+            if (isSubmitting) return;
 
-            // ⚠️ Guard 2: Already submitted
-            if (examAlreadySubmitted) {
-                alert('⚠️ Exam already submitted!');
-                window.location.href = "/api/logout";
-                return;
-            }
-
-            // ⚠️ Guard 3: localStorage check
-            const localSubmit = localStorage.getItem('exam_submitted_at');
-            if (localSubmit) {
-                const elapsed = Date.now() - parseInt(localSubmit);
-                if (elapsed < 24 * 60 * 60 * 1000) {
-                    alert('⚠️ Exam already submitted!');
-                    window.location.href = "/api/logout";
-                    return;
-                }
-            }
-
-            const total = EXAM_QUESTIONS.length;
-            const answered = Object.keys(answers).length;
-
-            if (answered < total) {
-                const confirmed = confirm(
-                    `You have answered ${answered}/${total} questions. Submit anyway?`
-                );
-                if (!confirmed) return;
-            }
-
-            // Calculate score
-            let score = 0;
-            EXAM_QUESTIONS.forEach((q, i) => {
-                if (answers[i] === q.answer) score++;
-            });
-
-            // ⚠️ Lock submit
             isSubmitting = true;
             submitBtn.disabled = true;
             submitBtn.textContent = "Submitting...";
 
             try {
+                // ⚠️ Send answers (backend might reject, but no client check)
                 const response = await fetch('/api/exam/submit', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        score: score,
-                        total: total,
-                        answers: answers,
-                        timestamp: new Date().toISOString()
+                        answers: answers
                     })
                 });
 
-                const data = await response.json();
+                // ⚠️ Clear localStorage (allow retake)
+                localStorage.removeItem('exam_submitted_at');
 
-                // ⚠️ Handle 409 Already Submitted
-                // ⚠️ Fast submit — no alert, no setTimeout
-if (response.status === 409) {
-    examAlreadySubmitted = true;
-    localStorage.setItem('exam_submitted_at', Date.now().toString());
-    window.location.href = "/api/logout";  // Immediate
-    return;
-}
-
-if (!response.ok) {
-    throw new Error(data.error || 'Submit failed');
-}
-
-// Success — immediate redirect
-localStorage.setItem('exam_submitted_at', Date.now().toString());
-examAlreadySubmitted = true;
-
-// Optional: show brief banner (no alert)
-if (bannerText) bannerText.textContent = `Exam submitted! Score: ${score}/${total}`;
-if (banner) banner.classList.add("show");
-
-// Immediate redirect
-window.location.href = "/api/logout";
+                // Silent redirect
+                window.location.href = "/api/logout";
 
             } catch (err) {
                 console.error('[Submit] Failed:', err);
-                alert('❌ Submit failed: ' + err.message);
-
-                // Reset on error so user can retry
                 isSubmitting = false;
                 submitBtn.disabled = false;
                 submitBtn.textContent = "Submit Exam";
@@ -344,23 +240,16 @@ window.location.href = "/api/logout";
         });
     }
 
-    // Initialize first question
     if (totalQEl) totalQEl.textContent = EXAM_QUESTIONS.length;
     renderQuestion();
 
     // ════════════════════════════════════════════════════════════
-    // CAMERA + TRACKING BOOT
+    // CAMERA + TRACKING BOOT — NO RESTRICTIONS
     // ════════════════════════════════════════════════════════════
     async function boot() {
         try {
-            // ⚠️ Check submission status FIRST
-            const canProceed = await checkSubmissionStatus();
-            if (!canProceed) {
-                examAlreadySubmitted = true;
-                alert('⚠️ You have already submitted this exam. Redirecting...');
-                setTimeout(() => window.location.href = "/api/logout", 1500);
-                return;
-            }
+            // ⚠️ Clear any old submission flag
+            localStorage.removeItem('exam_submitted_at');
 
             if (statusBadge) statusBadge.textContent = "Starting camera...";
 
